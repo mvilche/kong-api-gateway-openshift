@@ -1,0 +1,62 @@
+version: '3.3'
+services:
+  kong:
+    image: kong:latest
+    ports:
+     - "8001:8001"
+    environment:
+      - WAITFOR_HOST=postgres
+      - WAITFOR_PORT=5432
+    depends_on:
+     - postgres
+    volumes:
+     - $PWD/kong/kong.conf:/etc/kong/kong.conf
+    restart: always
+    networks:
+     - integracion
+
+
+  konga:
+    image: konga:latest
+    ports:
+     - "1337:1337"
+    environment:
+      - WAITFOR_HOST=mongodb
+      - WAITFOR_PORT=27017
+    depends_on:
+     - mongodb
+    volumes:
+     - $PWD/konga/env:/opt/konga/.env
+    restart: always
+    networks:
+     - integracion
+
+
+  postgres:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_PASSWORD=kong
+      - POSTGRES_USER=kong
+      - POSTGRES_DB=kong
+    volumes:
+     - $PWD/database:/var/lib/postgresql/data
+    networks:
+     - integracion
+
+  mongodb:
+    image: mongo:4
+    volumes:
+     - $PWD/mongo:/data/db
+    networks:
+     - integracion
+
+
+
+
+networks:
+  integracion:
+      driver: bridge
+      ipam:
+        driver: default
+        config:
+         - subnet: 242.118.45.0/24

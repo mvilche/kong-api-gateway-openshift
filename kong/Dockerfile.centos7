@@ -1,0 +1,20 @@
+FROM centos:7
+
+RUN yum install epel-release wget curl nc hostname -y && \
+yum install https://bintray.com/kong/kong-rpm/download_file?file_path=centos/7/kong-1.4.0.el7.amd64.rpm -y && \
+yum clean all && rm -rf /var/cache/yum
+
+COPY run /usr/bin/run
+
+RUN mkdir -p /etc/kong-init && adduser -u 1001 kong && usermod -aG 0 kong && \
+chown -R 1001 /usr/local/kong /usr/bin/run /home/kong /etc/kong /usr/local/lib/luarocks /usr/local/share/lua /etc/kong-init && \
+chgrp -R 0 /usr/local/kong /home/kong /usr/bin/run /etc/kong /usr/local/lib/luarocks /usr/local/share/lua /etc/kong-init && \
+chmod -R g=u /usr/local/kong /home/kong /etc/kong /usr/bin/run /usr/local/lib/luarocks /usr/local/share/lua /etc/kong-init
+
+USER 1001
+
+EXPOSE 8443 8001 8444 8000
+
+VOLUME ["/etc/kong"] ["/etc/kong-init"]
+
+CMD ["/usr/bin/run"]
