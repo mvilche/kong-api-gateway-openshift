@@ -24,6 +24,23 @@
 
 ########## KONG
 
+
+
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      finalizers:
+      - kubernetes.io/pvc-protection
+      name: kong-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Gi
+
+
+          
   - apiVersion: v1
     data:
       kong.conf: |-
@@ -1052,21 +1069,20 @@
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
               volumeMounts:
-                - mountPath: /etc/kong-init
-                  name: kong-data-1
+                - name: kong
+                  mountPath: /etc/kong-init
                   subPath: kong/kong-init
-                - mountPath: /etc/kong
-                  name: kong-config
+                - name: kong-config
+                  mountPath: /etc/kong
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           schedulerName: default-scheduler
           terminationGracePeriodSeconds: 30
           volumes:
-            - name: kong-data-1
+            - name: kong
               persistentVolumeClaim:
-                claimname: kong-data
+                claimName: kong-api-gateway-data
             - configMap:
-                defaultMode: 420
                 name: kong-config
               name: kong-config
       test: false
@@ -1240,17 +1256,10 @@
                     fi
                 initialDelaySeconds: 30
                 timeoutSeconds: 15
-             resources:
-              requests:
-                cpu: 500m
-                memory: 128Mi
-              limits:
-                cpu: 1
-                memory: 512Mi
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
               volumeMounts:
-              - name: mongo-data-1
+              - name: mongo
                 mountPath: /opt/mongodb-data
                 subPath: mongodb
               - name: mongo-config
@@ -1260,9 +1269,9 @@
           schedulerName: default-scheduler
           terminationGracePeriodSeconds: 30
           volumes:
-            - name: mongo-data-1
+            - name: mongo
               persistentVolumeClaim:
-                claimname: kong-data
+                claimName: kong-api-gateway-data
             - configMap:
                 name: mongo-config
               name: mongo-config
@@ -1401,7 +1410,7 @@
               terminationMessagePolicy: File
               volumeMounts:
                 - mountPath: /var/lib/pgsql/data
-                  name: postgresql-1
+                  name: postgresql
                   subPath: postgresql
           dnsPolicy: ClusterFirst
           restartPolicy: Always
@@ -1409,9 +1418,9 @@
           securityContext: {}
           terminationGracePeriodSeconds: 30
           volumes:
-            - name: postgresql-1
+            - name: postgresql
               persistentVolumeClaim:
-                claimname: kong-data
+                claimName: kong-api-gateway-data
       test: false
       triggers:
         - type: ConfigChange
@@ -1466,19 +1475,19 @@
 #### comienzo konga
 
 
-    - apiVersion: v1
-      data:
-        env: |-
-          PORT=1337
-          NODE_ENV=production
-          KONGA_HOOK_TIMEOUT=120000
-          DB_ADAPTER=mongo
-          DB_URI=mongodb://mongo:27017/konga
-          KONGA_LOG_LEVEL=warn
-          TOKEN_SECRET=some_secret_token
-      kind: ConfigMap
-      metadata:
-        name: konga-config
+  - apiVersion: v1
+    data:
+      env: |-
+        PORT=1337
+        NODE_ENV=production
+        KONGA_HOOK_TIMEOUT=120000
+        DB_ADAPTER=mongo
+        DB_URI=mongodb://mongo:27017/konga
+        KONGA_LOG_LEVEL=warn
+        TOKEN_SECRET=some_secret_token
+    kind: ConfigMap
+    metadata:
+      name: konga-config
 
 
 
@@ -1634,25 +1643,5 @@
     spec: {}
 
 
-########## FIN KONG
+########## FIN konga
 
-
-###fin konga
-
-
-
-#######################
-  - apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      finalizers:
-      - kubernetes.io/pvc-protection
-      name: kong-data
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 20Gi
-
-########################
