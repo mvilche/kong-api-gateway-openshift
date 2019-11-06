@@ -1163,19 +1163,19 @@
 #### mongo
 
 
-    - apiVersion: v1
-      data:
-        mongod.conf: |-
-          storage:
-            dbPath: /opt/mongodb-data
-            journal:
-              enabled: true
-          net:
-            port: 27017
-            bindIp: 0.0.0.0 
-      kind: ConfigMap
-      metadata:
-        name: mongo-config
+  - apiVersion: v1
+    data:
+      mongod.conf: |-
+        storage:
+          dbPath: /opt/mongodb-data
+          journal:
+            enabled: true
+        net:
+          port: 27017
+          bindIp: 0.0.0.0 
+    kind: ConfigMap
+    metadata:
+      name: mongo-config
 
 
   - apiVersion: v1
