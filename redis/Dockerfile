@@ -1,7 +1,7 @@
 FROM alpine:3.10
 RUN apk add --no-cache --update redis busybox-suid shadow busybox-extras && \
 mkdir -p /opt/redis /opt/redis-config /var/run/redis && \
-useradd -D -u 1001 redis && usermod -aG 0 1001 && \
+adduser -D -H -u 1001 redis && usermod -aG 0 1001 && \
 chown -R 1001 /opt && \
 chgrp -R 0 /opt  && \
 chmod -R g=u /opt
