@@ -1203,6 +1203,11 @@
           containers:
             - image: "mongo:latest"
               imagePullPolicy: Always
+              command:
+              - bash
+              - "-c"
+              - |
+                /opt/mongodb/bin/mongod --config /opt/mongodb-config/mongod.conf              
               name: mongo
               ports:
                 - containerPort: 27017
