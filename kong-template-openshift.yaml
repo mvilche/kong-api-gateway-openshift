@@ -2239,7 +2239,7 @@
             deploymentconfig: redis
         spec:
           containers:
-            - image: "redis:5-alpine"
+            - image: "redis:latest"
               imagePullPolicy: Always
               name: redis
               ports:
@@ -2305,7 +2305,7 @@
               - redis
             from:
               kind: ImageStreamTag
-              name: "redis:5-alpine"
+              name: "redis:latest"
           type: ImageChange
 
 
