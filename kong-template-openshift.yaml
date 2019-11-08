@@ -2595,7 +2595,7 @@
         plugins = /opt/grafana-data/plugins
 
         # folder that contains provisioning config files that grafana will apply on startup and while running.
-        ;provisioning = conf/provisioning
+        provisioning = /opt/grafana/provisioning
 
         #################################### Server ####################################
         [server]
@@ -3189,6 +3189,88 @@
       name: grafana-config
 
 
+
+
+  - apiVersion: v1
+    data:
+      datasources.yml: |-
+        # config file version
+        apiVersion: 1
+
+        # list of datasources that should be deleted from the database
+        deleteDatasources:
+          - name: Prometheus
+            orgId: 1
+
+        # list of datasources to insert/update depending
+        # what's available in the database
+        datasources:
+          # <string, required> name of the datasource. Required
+        - name: Prometheus
+          # <string, required> datasource type. Required
+          type: prometheus
+          # <string, required> access mode. proxy or direct (Server or Browser in the UI). Required
+          access: proxy
+          # <int> org id. will default to orgId 1 if not specified
+          orgId: 1
+          # <string> url
+          url: http://prometheus:9090
+          # <string> Deprecated, use secureJsonData.password
+          password:
+          # <string> database user, if used
+          user:
+          # <string> database name, if used
+          database:
+          # <bool> enable/disable basic auth
+          basicAuth:
+          # <string> basic auth username
+          basicAuthUser:
+          # <string> Deprecated, use secureJsonData.basicAuthPassword
+          basicAuthPassword:
+          # <bool> enable/disable with credentials headers
+          withCredentials:
+          # <bool> mark as default datasource. Max one per org
+          isDefault:
+          # <map> fields that will be converted to json and stored in jsonData
+          version: 1
+          # <bool> allow users to edit datasources from the UI.
+          editable: false
+    kind: ConfigMap
+    metadata:
+      name: grafana-config-datasource
+
+  - apiVersion: v1
+    data:
+      dashboards.yml: |-
+        apiVersion: 1
+
+        providers:
+          # <string> an unique provider name
+        - name: 'kong'
+          # <int> org id. will default to orgId 1 if not specified
+          orgId: 1
+          # <string, required> name of the dashboard folder. Required
+          folder: ''
+          # <string> folder UID. will be automatically generated if not specified
+          folderUid: ''
+          # <string, required> provider type. Required
+          type: file
+          # <bool> disable dashboard deletion
+          disableDeletion: false
+          # <bool> enable dashboard editing
+          editable: true
+          # <int> how often Grafana will scan for changed dashboards
+          updateIntervalSeconds: 10
+          # <bool> allow updating provisioned dashboards from the UI
+          allowUiUpdates: false
+          options:
+            # <string, required> path to dashboard files on disk. Required
+          path: /opt/grafana-dashboard
+    kind: ConfigMap
+    metadata:
+      name: grafana-config-dashboard       
+
+
   - apiVersion: v1
     kind: DeploymentConfig
     metadata:
@@ -3263,14 +3345,24 @@
                 mountPath: /opt/grafana-data
                 subPath: grafana
               - name: grafana-config
-                mountPath: /opt/grafana-config               
+                mountPath: /opt/grafana-config
+              - name: grafana-config-datasource
+                mountPath: /opt/grafana/conf/provisioning/datasources
+              - name: grafana-config-dashboard
+                mountPath: /opt/grafana-dashboard                                       
           volumes:
             - name: grafana
               persistentVolumeClaim:
                 claimName: kong-api-gateway-data
             - configMap:
                 name: grafana-config
-              name: grafana-config                        
+              name: grafana-config
+            - configMap:
+                name: grafana-config-datasource
+              name: grafana-config-datasource
+            - configMap:
+                name: grafana-config-dashboard
+              name: grafana-config-dashboard                                                   
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           schedulerName: default-scheduler
