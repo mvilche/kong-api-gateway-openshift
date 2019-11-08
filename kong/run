@@ -36,6 +36,8 @@ if [ ! -f "/etc/kong-init/.nodelete" ]; then
 	echo "···································································································"
     echo "--> FIRST START CHECK MIGRATIONS.."
     kong migrations bootstrap -c /etc/kong/kong.conf || rm -rf /etc/kong-init/.nodelete
+	curl -X POST http://127.0.0.1:8001/plugins --data "name=prometheus"
+	curl -X POST http://127.0.0.1:8001/plugins --data "name=key-auth"
 	echo "···································································································"
 fi
 
