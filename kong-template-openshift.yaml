@@ -2404,7 +2404,7 @@
             - targets: ['localhost:9090']
     kind: ConfigMap
     metadata:
-      name: redis-config
+      name: prometheus-config
       
       
 

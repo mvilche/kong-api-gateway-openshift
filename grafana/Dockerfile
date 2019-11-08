@@ -15,4 +15,4 @@ USER 1001
 
 EXPOSE 3000
 
-CMD /opt/grafana/bin/grafana-server -config /opt/grafana-config/grafana.ini
+CMD /opt/grafana/bin/grafana-server -config /opt/grafana-config/grafana.ini -homepath /opt/grafana
